@@ -1,0 +1,40 @@
+.o-buttons {
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: middle;
+	margin: 0;
+	outline: 0;
+	border-style: solid;
+	text-align: center;
+	text-decoration: none;
+	font-weight: $o-buttons-font-weight;
+	border-radius: $_o-buttons-border-radius;
+	cursor: pointer;
+	transition: 0.3s background-color, 0.15s color ease-out, 0.15s border-color ease-out;
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	background-clip: padding-box;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+
+
+	$vertical-padding: 1/2 * (36px - 18px) - 1px;
+	padding: $vertical-padding 18px $vertical-padding 18px; 
+	font-size: 18px;
+	border-width: 1px;
+
+	@include oButtonsSize(big);
+	@include oButtonsTheme(standout);
+	
+
+	&[disabled] {
+		pointer-events: none;
+		opacity: 0.4;
+		cursor: default;
+	}
+
+	&::-moz-focus-inner {
+		border: 0;
+		padding: 0;
+	}
+}

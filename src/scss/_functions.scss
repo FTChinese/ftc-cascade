@@ -1,0 +1,59 @@
+@function toHex($col) {
+	@return str-slice(ie-hex-str($col), 4);
+}
+
+@function getColor($args...) {
+	@return oColorsGetPaletteColor($args...);
+}
+
+@function getColorFor($args...) {
+	@return oColorsGetColorFor($args...);
+}
+
+// adapted from o-fonts/src/scss/_functions.scss
+/// @param {String} family - sans or serif
+/// @return {String} - font-stack
+@function getFontFamily($family) {
+
+	@if map-has-key($o-fonts-families, $family) {
+		@return unquote(map-get($o-fonts-families, $family));
+	}
+	@warn 'Font #{$family} not found. Must be one of $o-fonts-families.';
+	@return inherit;
+}
+/// @param {String} $keyword - Human-readable keyword, one of $_o-fonts-weights
+///
+/// @example scss
+/// font-weight: oFontsWeight(lighter);
+///
+/// @return {Number} - CSS font-weight
+@function getFontWeight($keyword) {
+	@if map-has-key($_o-fonts-weights, $keyword) {
+		@return map-get($_o-fonts-weights, $keyword);
+	} @else {
+		@warn 'Keyword "#{$keyword}" not found. Must be one of $_o-fonts-weights.';
+	}
+}
+
+@function getFontSize($keyword) {
+	@if map-has-key($_o-fonts-sizes, $keyword) {
+		@return convert-to-px(map-get($_o-fonts-sizes, $keyword));
+	} @else {
+		@warn 'Keyword "#{$keyword}" not found. Must be one of $_o-fonts-sizes.';
+	}
+}
+
+@function convert-to-px($value) {
+	@if (type-of($value) == number and $value != 0) {
+		$value: if(unitless($value), $value * 1px, $value);
+	}
+	@return $value;
+}
+
+@function getLineHeight($keyword) {
+	@if map-has-key($_o-texts-line-heights, $keyword) {
+		@return map-get($_o-texts-line-heights, $keyword);
+	} @else {
+		@warn 'Keyword "#{$keyword}" not found. Must be one of $_o-texts-line-heights.';
+	}
+}

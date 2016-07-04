@@ -1,0 +1,26 @@
+{
+  "name": "next-article",
+  "homepage": "https://github.com/FTChinese/s-waterfall-select",
+  "authors": [
+    "neefrankie <neefrankie@gmail.com>"
+  ],
+  "description": "Cascading select",
+  "main": "main.js",
+  "moduleType": [
+    "es6"
+  ],
+  "keywords": [
+    "Cascading",
+    "select"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+  }
+}

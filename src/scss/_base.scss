@@ -1,0 +1,20 @@
+html {
+	@include oColorsFor(page);
+	font-family: getFontFamily(sans);
+	line-height: getLineHeight(l);
+	overflow-x: hidden;
+}
+
+.o-header, .article__body, .o-footer {
+	max-width: 940px;
+	margin: 0 auto;
+	padding: 0 10px;
+	@include oGridRespondTo(M) {
+		padding: 0 20px;
+	}
+}
+.o-header {
+	@include oGridRespondTo($until: M) {
+		padding: 0;
+	}
+}

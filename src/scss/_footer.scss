@@ -1,0 +1,22 @@
+.o-footer {
+	margin-top: 1em;
+	border-top: 10px solid oColorsGetPaletteColor('pink-tint3');
+	text-align: center;
+}
+.o-footer__nav--items {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	li {
+		display: inline-block;
+		padding: 0 5px;
+	}
+	a {
+		text-decoration: none;
+		color: oColorsGetColorFor(link, text);
+		&:focus,
+		&:hover {
+			color: oColorsGetColorFor(link-hover, text);
+		}
+	}
+}

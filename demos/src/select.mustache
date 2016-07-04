@@ -1,0 +1,22 @@
+<form action="">
+
+	<div>
+		<label for="province">所在省份:</label>
+		<select id="province" name="province" data-next="city" required></select>
+	</div>
+
+	<div>
+		<label for="city">所在城市:</label>
+		<select id="city" name="city" data-next="dealer" required><option>请选择所在城市</option></select>
+	</div>        
+
+	<div>
+		<label for="dealer">经销商:</label>
+		<select id="dealer" name="dealer" data-next="null" required><option>请选择所在地经销商</option></select>
+	</div>
+
+  <div class="o-forms-group">
+    <button type="submit" name="submit" class="o-buttons">提交</button>
+  </div>
+
+</form>

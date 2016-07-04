@@ -1,0 +1,37 @@
+$o-fonts-families: (
+	sans: '"Helvetica Neue", "Lucida Grande", Verdana, "PingFang SC", "PingFang TC", "Hiragino Sans GB", "Heiti SC", "Heiti TC", "WenQuanYi Micro Hei", "Microsoft YaHei", "Microsoft JhengHei", STHeiti, sans-serif',
+	serif: '"Times New Roman", "Songti SC", "Songti TC", SimSun, serif'
+);
+
+$_o-fonts-weights: (
+	'thin':       100,
+	'light':      200,
+	'normal':     400,
+	'medium':     500,
+	'semibold':   600,
+	'bold':       700,
+	'black':      800,
+);
+// `m` is the font-size we will use on content text.
+$_o-fonts-sizes: (
+	'xxl': 40,
+	'xl': 26,
+	'l': 20,
+	'm': 18,
+	's': 16,
+	'xs': 14,
+	'xxs': 12
+);
+
+
+// use `l` for content text
+$_o-texts-line-heights: (
+	'xxl': 2,
+	'xl': 1.75,
+	'l': 1.618,
+	'm': 1.4,
+	's': 1.2,
+	'xs': 1
+);
+
+

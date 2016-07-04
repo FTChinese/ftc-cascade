@@ -1,0 +1,30 @@
+
+.o-tabs {
+	border: 1px solid green;
+	.tabs {
+		list-style: none;
+		position: relative;	
+		overflow: hidden;
+		margin: 0;
+		padding: 0;
+
+		li {
+			display: inline-block;
+			background-color: red;
+		}
+
+	}
+	.tab-content {
+		display: none;
+	}
+	
+	#tab1:checked ~ section #tab-content1,
+	#tab2:checked ~ section #tab-content2 {
+		display: block;
+	}
+
+}
+
+
+
+

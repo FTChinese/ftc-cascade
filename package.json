@@ -1,0 +1,44 @@
+{
+  "name": "cascading-select",
+  "version": "1.0.0",
+  "description": "A cascading select",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FTChinese/s-waterfall-select.git"
+  },
+  "keywords": [
+    "Cascading",
+    "select"
+  ],
+  "author": "weiguo.ni",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FTChinese/s-waterfall-select/issues"
+  },
+  "homepage": "https://github.com/FTChinese/s-waterfall-select#readme",
+  "devDependencies": {
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "bower-webpack-plugin": "^0.1.9",
+    "browser-sync": "^2.13.0",
+    "del": "^2.2.0",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-changed": "^1.3.0",
+    "gulp-data": "^1.2.1",
+    "gulp-load-plugins": "^1.2.2",
+    "gulp-mustache": "^2.2.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-postcss": "^6.1.1",
+    "gulp-sass": "^2.3.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
+    "postcss-cssnext": "^2.7.0",
+    "webpack": "^1.13.1",
+    "webpack-stream": "^3.2.0"
+  }
+}
