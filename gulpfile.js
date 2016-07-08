@@ -75,8 +75,9 @@ gulp.task('scripts', function() {
   }
 
   return gulp.src('demos/src/demo.js')
-    .pipe(webpack(webpackConfig))
     .pipe($.sourcemaps.init({loadMaps: true}))
+      .pipe(webpack(webpackConfig))
+      .on('error', $.util.log) 
     .pipe($.sourcemaps.write('./'))
     .pipe(gulp.dest(DEST))
     .pipe(browserSync.stream({once:true}));
@@ -96,11 +97,11 @@ gulp.task('serve', gulp.parallel('mustache', 'styles', 'scripts', function serve
     }
   });
 
-  gulp.watch(['demo/src/*.{mustache,json}', '*.mustache'], gulp.parallel('mustache'));
+  gulp.watch(['demos/src/*.{mustache,json}', '*.mustache'], gulp.parallel('mustache'));
 
-  gulp.watch(['demo/src/*.scss', 'src/**/*.scss', '*.scss'], gulp.parallel('styles'));
+  gulp.watch(['demos/src/*.scss', 'src/**/*.scss', '*.scss'], gulp.parallel('styles'));
 
-  gulp.watch(['demo/src/*.js', 'src/**/*.js'], gulp.parallel('scripts'));
+  gulp.watch(['demos/src/*.js', 'src/**/*.js'], gulp.parallel('scripts'));
 }));
 
 // Set NODE_ENV according to dirrent task run.
