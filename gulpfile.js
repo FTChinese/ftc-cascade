@@ -9,6 +9,12 @@ const webpackStream = require('webpack-stream');
 const webpackConfig = require('./webpack.config.js');
 process.env.NODE_ENV = 'development';
 
+const rollupStream = require('rollup-stream');
+const source = require('vinyl-source-stream');
+const buffer = require('vinyl-buffer');
+const bowerResolve =require('rollup-plugin-bower-resolve');
+const buble = require('rollup-plugin-buble');
+
 const demoFolder = 'ft-interact';
 const projectName = path.basename(__dirname);
 
@@ -68,7 +74,7 @@ gulp.task('styles', function styles() {
     .pipe(browserSync.stream({once: true}));
 });
 
-gulp.task('scripts', function(done) {
+gulp.task('webpack', function(done) {
   const DEST = '.tmp/scripts/';
 
   if (process.env.NODE_ENV === 'production') {
@@ -88,11 +94,28 @@ gulp.task('scripts', function(done) {
     .pipe(gulp.dest(DEST));
 });
 
+gulp.task('rollup', () => {
+  return rollupStream({
+      entry: './demos/src/demo.js',
+      sourceMap: true,
+      plugins: [
+        bowerResolve(),
+        buble()
+      ],
+    })
+    .pipe(source('bundle.js', './demos/src'))
+    .pipe(buffer())
+    .pipe($.sourcemaps.init({loadMaps: true}))
+    .pipe($.sourcemaps.write('.'))
+    .pipe(gulp.dest('.tmp/scripts'))
+    .pipe(browserSync.stream({once: true}));
+});
+
 gulp.task('clean', function() {
   return del(['.tmp/**']);
 });
 
-gulp.task('serve', gulp.parallel('mustache', 'styles', 'scripts', function serve () {
+gulp.task('serve', gulp.parallel('mustache', 'styles', 'rollup', function serve () {
   browserSync.init({
     server: {
       baseDir: ['.tmp'],
@@ -105,6 +128,7 @@ gulp.task('serve', gulp.parallel('mustache', 'styles', 'scripts', function serve
   gulp.watch(['demos/src/*.{mustache,json}', '*.mustache'], gulp.parallel('mustache'));
 
   gulp.watch(['demos/src/*.scss', 'src/**/*.scss', '*.scss'], gulp.parallel('styles'));
+  gulp.watch(['demos/src/*.js', 'src/**/*.js', '*.js'], gulp.parallel('rollup'));
 
 }));
 
@@ -131,4 +155,4 @@ gulp.task('demos:copy', function() {
     .pipe(gulp.dest(DEST));
 })
 
-gulp.task('demos', gulp.series('prod', 'clean', gulp.parallel('mustache', 'styles', 'scripts'), 'demos:copy', 'dev'));
+gulp.task('demos', gulp.series('prod', 'clean', gulp.parallel('mustache', 'styles', 'rollup'), 'demos:copy', 'dev'));
