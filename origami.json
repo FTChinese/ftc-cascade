@@ -1,0 +1,19 @@
+{
+    "description": "Cascading select",
+    "origamiType": "module",
+    "origamiCategory": "components",
+    "origamiVersion": 1,
+    "support": "https://github.com/FTChinese/ftc-cascade/issues",
+    "supportStatus": "active",
+    "demosDefaults": {
+        "js": "demos/src/demo.js"
+    },
+    "demos": [
+        {
+            "name": "cascade",
+            "template": "demos/src/demo.html",
+            "expanded": true,
+            "description": ""
+        }
+    ]
+}

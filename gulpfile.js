@@ -1,59 +1,87 @@
-const fs = require('fs');
+const promisify = require('promisify-node')
+const fs = promisify('fs');
 const path = require('path');
+const isThere = require('is-there');
+const co = require('co');
+const mkdirp = require('mkdirp');
+const helper = require('./helper');
+
+const del = require('del');
+const browserSync = require('browser-sync').create();
+const cssnext = require('postcss-cssnext');
+
 const gulp = require('gulp');
 const $ = require('gulp-load-plugins')();
-const del = require('del');
-const cssnext = require('postcss-cssnext');
-const browserSync = require('browser-sync').create();
-const webpackStream = require('webpack-stream');
+
+const webpack = require('webpack');
 const webpackConfig = require('./webpack.config.js');
-process.env.NODE_ENV = 'development';
 
-const rollupStream = require('rollup-stream');
-const bowerResolve =require('rollup-plugin-bower-resolve');
-const source = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
-const buble = require('rollup-plugin-buble');
-
-const demoFolder = 'ft-interact';
+const demosDir = '../ft-interact/demos';
 const projectName = path.basename(__dirname);
 
-function readFilePromisified(filename) {
-  return new Promise(
-    function(resolve, reject) {
-      fs.readFile(filename, 'utf8', function(err, data) {
-        if (err) {
-          console.log('Cannot find file: ' + filename);
-          reject(err);
-        } else {
-          resolve(data);
-        }
+process.env.NODE_ENV = 'dev';
+
+// change NODE_ENV between tasks.
+gulp.task('prod', function(done) {
+  process.env.NODE_ENV = 'prod';
+  done();
+});
+
+gulp.task('dev', function(done) {
+  process.env.NODE_ENV = 'dev';
+  done();
+});
+
+gulp.task('html', () => {
+// determine whether include `/api/resize-iframe.js` listed in `ftc-components`.
+  var embedded = false;
+
+  return co(function *() {
+    const destDir = '.tmp';
+
+    if (!isThere(destDir)) {
+      mkdirp(destDir, (err) => {
+        if (err) console.log(err);
       });
     }
-  );
-}
+    if (process.env.NODE_ENV === 'prod') {
+      embedded = true;
+    }
 
-gulp.task('mustache', function () {
-  const DEST = '.tmp';
+    const origami = yield helper.readJson('origami.json');
 
-  return gulp.src('./demos/src/index.mustache')
-    .pipe($.data(function(file) {
-      return readFilePromisified('./demos/src/demo.json')
-        .then(function(value) {
-          return JSON.parse(value);
-        });
-    }))   
-    .pipe($.mustache({}, {
-      extension: '.html'
-    }))
-    .pipe(gulp.dest(DEST))
-    .pipe(browserSync.stream({once: true}));
+    const demos = origami.demos;
+
+    const renderResults = yield Promise.all(demos.map(function(demo) {
+
+      const template = demo.template;
+      console.log(`Using template "${template}" for "${demo.name}"`);
+
+      const context = {
+        pageTitle: demo.name,
+        description: demo.description,
+        embedded: embedded
+      };
+
+      return helper.render(template, context, demo.name);
+    }));
+
+    yield Promise.all(renderResults.map(result => {
+      const dest = `.tmp/${result.name}.html`;
+      return fs.writeFile(dest, result.content, 'utf8');
+    }));
+  })
+  .then(function(){
+    browserSync.reload('*.html');
+  }, function(err) {
+    console.error(err.stack);
+  });
 });
 
 gulp.task('styles', function styles() {
   const DEST = '.tmp/styles';
 
-  return gulp.src('demos/src/main.scss')
+  return gulp.src('demos/src/*.scss')
     .pipe($.changed(DEST))
     .pipe($.plumber())
     .pipe($.sourcemaps.init({loadMaps:true}))
@@ -74,85 +102,57 @@ gulp.task('styles', function styles() {
     .pipe(browserSync.stream({once: true}));
 });
 
-gulp.task('webpack', function(done) {
-  const DEST = '.tmp/scripts/';
-
-  if (process.env.NODE_ENV === 'production') {
-    webpackConfig.watch = false;
-  }
-
-  return gulp.src('demos/src/demo.js')
-    .pipe(webpackStream(webpackConfig, null, function(err, stats) {
-      $.util.log(stats.toString({
-          colors: $.util.colors.supportsColor,
-          chunks: false,
-          hash: false,
-          version: false
-      }));
-      browserSync.reload();
-    }))
-    .pipe(gulp.dest(DEST));
+gulp.task('eslint', () => {
+  return gulp.src('client/js/*.js')
+    .pipe($.eslint())
+    .pipe($.eslint.format())
+    .pipe($.eslint.failAfterError());
 });
 
-gulp.task('rollup', () => {
-  return rollupStream({
-      entry: './demos/src/demo.js',
-      sourceMap: true,
-      plugins: [
-        bowerResolve(),
-        buble()
-      ],
-    })
-    .pipe(source('bundle.js', './demos/src'))
-    .pipe(buffer())
-    .pipe($.sourcemaps.init({loadMaps: true}))
-    .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('.tmp/scripts'))
-    .pipe(browserSync.stream({once: true}));
+gulp.task('webpack', (done) => {
+  if (process.env.NODE_ENV === 'prod') {
+    delete webpackConfig.watch;
+  }
+
+  webpack(webpackConfig, function(err, stats) {
+    if (err) throw new $.util.PluginError('webpack', err);
+    $.util.log('[webpack]', stats.toString({
+      colors: $.util.colors.supportsColor,
+      chunks: false,
+      hash: false,
+      version: false
+    }));
+    browserSync.reload('demo.js');
+    done();
+  });
 });
 
 gulp.task('clean', function() {
   return del(['.tmp/**']);
 });
 
-gulp.task('serve', gulp.parallel('mustache', 'styles', 'rollup', function serve () {
+gulp.task('serve', gulp.parallel('html', 'webpack', () => {
   browserSync.init({
     server: {
       baseDir: ['.tmp'],
+      index: 'cascade.html',
+      directory: true,
       routes: {
         '/bower_components': 'bower_components'
       }
     }
   });
 
-  gulp.watch(['demos/src/*.{mustache,json}', '*.mustache'], gulp.parallel('mustache'));
-
-  gulp.watch(['demos/src/*.scss', 'src/**/*.scss', '*.scss'], gulp.parallel('styles'));
-  gulp.watch(['demos/src/*.js', 'src/**/*.js', '*.js'], gulp.parallel('rollup'));
-
+  gulp.watch(['demos/src/*.{html,json}', 'partials/*.html'], gulp.parallel('html'));
 }));
 
-// Set NODE_ENV according to dirrent task run.
-// Any easy way to set it?
-gulp.task('dev', function() {
-  return Promise.resolve(process.env.NODE_ENV = 'development')
-    .then(function(value) {
-      console.log('NODE_ENV: ' + process.env.NODE_ENV);
-    });
-});
+gulp.task('build', gulp.parallel('html', 'styles', 'webpack'));
 
-gulp.task('prod', function() {
-  return Promise.resolve(process.env.NODE_ENV = 'production')
-    .then(function(value) {
-      console.log('NODE_ENV: ' + process.env.NODE_ENV);
-    });
-});
-
-gulp.task('demos:copy', function() {
-  const DEST = path.join(__dirname, '..', demoFolder, projectName);
-
+gulp.task('copy', () => {
+  const DEST = path.resolve(__dirname, demosDir, projectName);
+  console.log(`Deploying to ${DEST}`);
   return gulp.src('.tmp/**/*')
     .pipe(gulp.dest(DEST));
-})
+});
 
-gulp.task('demos', gulp.series('prod', 'clean', gulp.parallel('mustache', 'styles', 'rollup'), 'demos:copy', 'dev'));
+gulp.task('demo', gulp.series('prod', 'clean', 'build', 'copy', 'dev'));
