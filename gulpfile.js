@@ -10,9 +10,9 @@ const webpackConfig = require('./webpack.config.js');
 process.env.NODE_ENV = 'development';
 
 const rollupStream = require('rollup-stream');
+const bowerResolve =require('rollup-plugin-bower-resolve');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
-const bowerResolve =require('rollup-plugin-bower-resolve');
 const buble = require('rollup-plugin-buble');
 
 const demoFolder = 'ft-interact';
