@@ -56,6 +56,7 @@ class Stage {
 		} else if (!(rootEl instanceof HTMLElement)) {
 			rootEl = document.querySelector(rootEl);
 		}
+
 		this.rootEl = rootEl;	
 		this.template = config.template;
 		this.tagName = config.tagName;
@@ -72,32 +73,43 @@ class Stage {
 			if (target.nodeName.toLowerCase() === this.tagName) {
 
 				this.setSelected(target.textContent);
-				console.log(this.selected);
-				this.sendEvent();
+				console.log('clicked on:', this.selected);
 			}
 		});
 
 		this.rootEl.addEventListener('o.cascade', (e) => {
 // e.detail could be object or null
-			this.setData(e.detail);
-			this.sendEvent();
+			this.setData(e.detail);		
 		});
 	}
 
+// Actions of setData and setSelected should both trigger dispatching custom event.
 	setData(data) {
 		this.data = data;
-// if there are data, add item, else clear content;
+// if there are data, clear old items adn add news items, else just clear;
 		if (this.data) {
 			this.addItems();
 		} else {
 			this.clearItems();
 		}	
+		this.sendEvent();
 	}
 // everything revolves around this.selected.
 // It is set only after an item is clicked.
 	setSelected(newValue) {
 		if (this.selected !== newValue) {
 			this.selected = newValue;
+			this.sendEvent();
+		}
+
+		if (!this.nextStage) {
+			const completeEvent = new CustomEvent('o.complete', {
+				'detail': 'complete',
+				"bubbles": true, 
+				"cancelable": true
+			});
+			console.log('Dispatching complete event');
+			this.rootEl.dispatchEvent(completeEvent);			
 		}
 	}
 
@@ -110,11 +122,15 @@ class Stage {
 				"bubbles": true, 
 				"cancelable": true
 			});
+			console.log('dispatching custom event to next stage.', detail ? ' with data' : 'without data');
+			console.log('this.selected: ', this.selected);
 			this.nextStage.rootEl.dispatchEvent(cascadeEvent);
 		}
 	}
 
 	addItems() {
+// clear innerHTML before adding
+		this.clearItems();
 		const items = Array.isArray(this.data) ? this.data : Object.keys(this.data)
 
 		const itemEls = createItems(this.template, items);
@@ -146,14 +162,21 @@ class Cascade {
 				tagName: config.tagName
 			}));
 		}
-// initialize first tab
-		stages[0].setData(data);
+		
 
 		for (let i = 0; i < stages.length - 1; i++) {
 			stages[i].nextStage = stages[i + 1];
 		}
 
+		// initialize first tab
+		stages[0].setData(config.data);
+
 		this.stages = stages;
+		this.history = [];
+
+		container.addEventListener('o.complete', (e) => {
+			console.log('complete event received');
+		});
 	}
 }
 
