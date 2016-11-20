@@ -1,5 +1,19 @@
 {% extends "base.html" %}
 {% block body %}
+<div class="dropdown-menu">
+  <ul>
+    <li>省份</li>
+    <li>市区</li>
+    <li>县区</li>
+  </ul>
+  <div class="geo">
+    <ul class="geo-list" id="regions"></ul>
+    <ul class="geo-list" id="provinces"></ul>
+    <ul class="geo-list" id="cities"></ul>
+  </div>  
+</div>
+
+
 <form action="">
 
   <div class="o-cascade" data-o-component="o-cascade">
